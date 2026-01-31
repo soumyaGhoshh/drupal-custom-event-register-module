@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class AdminSettingsForm extends FormBase {
 
   /**
-   * @var \Drupal\core\database\Connection
+   *  @var \Drupal\Core\Database\Connection
    */
   protected $database;
 
@@ -27,7 +27,7 @@ class AdminSettingsForm extends FormBase {
   }
 
   /**
-   * @param \Drupal\core\database\Connection $database
+   * @param \Drupal\Core\Database\Connection $database
    */
   public function __construct (Connection $database) {
     $this->database = $database;
@@ -37,7 +37,7 @@ class AdminSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return event_registration_admin_settings;
+    return 'event_registration_admin_settings';
   }
 
   /**
@@ -55,17 +55,17 @@ class AdminSettingsForm extends FormBase {
       '#title' => $this->t('Category'),
       '#options' => [
         'Online workshop' => $this->t('Online Workshop'),
-        'Hackathon' => $this->t('hackathon'),
+        'Hackathon' => $this->t('Hackathon'),
         'Conference' => $this->t('Confrence'),
-        'One-day Workshop'
+        'One-day Workshop' => $this->t('One-day Workshop'),
       ],
       '#required' => TRUE,
     ];
 
     $form['event_date'] = [
-      '$type' => 'date',
-      '$title' => $this->t('Event Date'),
-      '$required' => TRUE
+      '#type' => 'date',
+      '#title' => $this->t('Event Date'),
+      '#required' => TRUE,
     ];
 
 
@@ -95,19 +95,19 @@ class AdminSettingsForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array $form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $values = [
       'event_name' => $form_state->getValue('event_name'),
-      'category' => $form_state->getVAlue('category'),
+      'category' => $form_state->getValue('category'),
       'event_date' => $form_state->getValue('event_date'),
-      'event_registration_start' => $form_state('event_registration_start')->getTimeStamp(),
-      'event_registration_end' => $form_state->getValue('event_registration_end')->getTimeStamp(),
+      'event_registration_start' => $form_state->getValue('event_registration_start')->getTimestamp(),
+      'event_registration_end' => $form_state->getValue('event_registration_end')->getTimestamp(),
     ];
 
-    $this->database->insert('event configuration.')
-    ->fields('values')
-    ->ececute();
+    $this->database->insert('event_configuration')
+      ->fields($values)
+      ->execute();
 
-    $this->messenger()->addStatus($this->t('The event configuration for the @name has been saved.', ['@name', '$values[event_name]']));
+    $this->messenger()->addStatus($this->t('The event configuration for the @name has been saved.', ['@name' => $values['event_name']]));
   }
 }
