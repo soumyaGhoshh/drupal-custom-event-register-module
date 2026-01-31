@@ -9,8 +9,9 @@
  * Implements hook_mail().
  */
 function event_registration_mail($key, &$message, $params) {
-   $langcode = isset($message['langcode']) ? $message['langcode'] : \Drupal::languageManager()->getDefaultLanguage()->getId();
-   $options = ['langcode' => $langcode];
+  $options = [
+    'langcode' => $message['langcode'],
+  ];
 
   switch ($key) {
     case 'registration_confirmation':
