@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * Primary module help and hook implementations for the Event Registration module.
+ */
+
+/**
+ * Implements hook_mail().
+ */
+function event_registration_mail($key, &$message, $params) {
+   $langcode = isset($message['langcode']) ? $message['langcode'] : \Drupal::languageManager()->getDefaultLanguage()->getId();
+   $options = ['langcode' => $langcode];
+
+  switch ($key) {
+    case 'registration_confirmation':
+    case 'admin_notification':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      
+      if ($key == 'admin_notification') {
+        $message['subject'] = t('ADMIN: New Registration for @event', ['@event' => $params['event_name']], $options);
+      } else {
+        $message['subject'] = t('Registration Confirmation: @event', ['@event' => $params['event_name']], $options);
+      }
+
+      $message['body'][] = t('The following registration details were submitted:', [], $options);
+      $message['body'][] = t('Name: @name', ['@name' => $params['name']], $options);
+      $message['body'][] = t('Email: @email', ['@email' => $params['email']], $options);
+      $message['body'][] = t('Event: @event', ['@event' => $params['event_name']], $options);
+      $message['body'][] = t('Date: @date', ['@date' => $params['event_date']], $options);
+      $message['body'][] = t('Category: @category', ['@category' => $params['category']], $options);
+      $message['body'][] = t('College: @college', ['@college' => $params['college']], $options);
+      $message['body'][] = t('Department: @dept', ['@dept' => $params['department']], $options);
+      break;
+  }
+}
