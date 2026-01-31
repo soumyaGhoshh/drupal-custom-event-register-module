@@ -1,0 +1,7 @@
+event_registration.settings:
+  path: '/admin/config/services/event-registration'
+  defaults:
+    _form: '\Drupal\event_registration\Form\AdminSettingsForm'
+    _title: 'Event Configuration'
+  requirements:
+    _permission: 'view event registrations'
