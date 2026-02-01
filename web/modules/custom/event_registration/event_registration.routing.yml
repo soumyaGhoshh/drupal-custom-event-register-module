@@ -13,3 +13,11 @@ event_registration.register:
     _title: 'Register for Event'
   requirements:
     _permission: 'access content'
+
+event_registration.module_settings:
+  path: '/admin/config/services/event-registration/global'
+  defaults:
+    _form: '\Drupal\event_registration\Form\ModuleSettingsForm'
+    _title: 'Global Settings'
+  requirements:
+    _permission: 'view event registrations'
