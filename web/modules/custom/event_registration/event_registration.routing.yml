@@ -21,3 +21,11 @@ event_registration.module_settings:
     _title: 'Global Settings'
   requirements:
     _permission: 'view event registrations'
+
+event_registration.admin_list:
+  path: '/admin/config/services/event-registration/registrations'
+  defaults:
+    _form: '\Drupal\event_registration\Form\RegistrationListForm'
+    _title: 'Event Registrations'
+  requirements:
+    _permission: 'view event registrations'

@@ -307,7 +307,6 @@ class RegistrationForm extends FormBase {
     NULL,
     TRUE
   );
-    
-    }
-
+  
+  }
 }
