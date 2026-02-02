@@ -163,7 +163,20 @@ class RegistrationListForm extends FormBase {
       '#rows' => $rows,
       '#empty' => $this->t('No registrations found for the selected filters.'),
     ];
-    
+        // Export Button.
+    $form['actions'] = ['#type' => 'actions'];
+    $form['actions']['export'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Export as CSV'),
+      '#url' => Url::fromRoute('event_registration.export_csv', [], [
+        'query' => [
+          'date' => $selected_date,
+          'name' => $selected_name,
+        ],
+      ]),
+      '#attributes' => ['class' => ['button', 'button--primary']],
+    ];
+
     return $form;
   }
 
