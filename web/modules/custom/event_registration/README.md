@@ -22,14 +22,37 @@ This module provides a robust framework for managing event registrations. It all
 3. The custom database tables (`event_configuration` and `event_registration`) are automatically created upon installation.
 
 ## URLs & Access
-- **Event Configuration**: `/admin/config/services/event-registration`
+- **Event Configuration**: [/admin/config/services/event-registration](https://event-registration-task.ddev.site/admin/config/services/event-registration)
   - Purpose: Add new events, set registration windows, and define categories.
-- **Global Settings**: `/admin/config/services/event-registration/global`
+  ![Event Configuration Form](images/event_config_form_real.png)
+
+- **Global Settings**: [/admin/config/services/event-registration/global](https://event-registration-task.ddev.site/admin/config/services/event-registration/global)
   - Purpose: Configure admin notification email and enable/disable alerts.
-- **Admin Dashboard**: `/admin/config/services/event-registration/registrations`
+  ![Global Settings](images/global_settings_real.png)
+
+- **Admin Dashboard**: [/admin/config/services/event-registration/registrations](https://event-registration-task.ddev.site/admin/config/services/event-registration/registrations)
   - Purpose: Filter registrations, view participant counts, and export CSVs.
-- **Public Registration Form**: `/event/register`
+  ![Admin Dashboard](images/admin_dashboard_real.png)
+
+- **Public Registration Form**: [/event/register](https://event-registration-task.ddev.site/event/register)
   - Purpose: User-facing form for event signup.
+  ![Registration Form](images/registration_form_real.png)
+
+## Database Access
+To view and manage the database (phpMyAdmin), run the following command:
+```bash
+ddev phpmyadmin
+```
+This will open the phpMyAdmin interface in your browser.
+Alternatively, visit: [https://event-registration-task.ddev.site:8037](https://event-registration-task.ddev.site:8037)
+
+### Database Table Views
+**Event Configuration Table:**
+![Event Configuration Table](images/db_configuration_table.png)
+
+**Event Registration Table:**
+![Event Registration Table](images/db_registration_table.png)
+
 
 ## Database Architecture
 The module utilizes two relational tables:
