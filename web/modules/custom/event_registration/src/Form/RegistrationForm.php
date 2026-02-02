@@ -246,6 +246,12 @@ class RegistrationForm extends FormBase {
         $form_state->setErrorByName('details][' . $key, $this->t('@label contains invalid characters.', ['@label' => $label]));
       }
     }
+
+    // Validate Event ID.
+    $event_id = $form_state->getValue(['event_name_wrapper', 'event_id']);
+    if (empty($event_id)) {
+      $form_state->setErrorByName('event_name_wrapper][event_id', $this->t('Please select an event.'));
+    }
   }
 
   /**
@@ -260,6 +266,11 @@ class RegistrationForm extends FormBase {
       ->condition('id', $event_id)
       ->execute()
       ->fetchObject();
+
+    if (!$event_info) {
+      $this->messenger()->addError($this->t('Invalid event selected.'));
+      return;
+    }
 
     $values = [
       'event_id' => $event_id,
@@ -296,17 +307,10 @@ class RegistrationForm extends FormBase {
     if ($config->get('enable_admin_notifications')) {
       $admin_email = $config->get('admin_email') ?? \Drupal::config('system.site')->get('mail');
       $this->mailManager->mail('event_registration', 'admin_notification', $admin_email, 'en', $params, NULL, TRUE);
+      $this->mailManager->mail('event_registration', 'admin_notification', $admin_email, 'en', $params, NULL, TRUE);
     }
-
-    $result = $this->mailManager->mail(
-    'event_registration',
-    'registration_confirmation',
-    $values['email'],
-    'en',
-    $params,
-    NULL,
-    TRUE
-  );
+    
+    $this->messenger()->addStatus($this->t('Registration successful! Check your email for confirmation.'));
   
   }
 }
