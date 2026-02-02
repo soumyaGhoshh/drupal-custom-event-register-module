@@ -35,12 +35,55 @@ A professional, high-performance Drupal 10 module designed for seamless event ma
 
 ## ⚙️ Installation & Setup
 
-1.  Clone/Place the `event_registration` folder into `modules/custom/`.
-2.  Enable via Drush:
-    ```bash
-    drush en event_registration
-    ```
-3.  The module will automatically provision the required database schema.
+### Prerequisites
+- PHP 8.3+
+- Composer 2.x
+- MySQL/MariaDB
+- A local development environment (DDEV recommended)
+
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/soumyaGhoshh/drupal-custom-event-register-module.git
+cd drupal-custom-event-register-module
+```
+
+### Step 2: Install Dependencies
+```bash
+composer install
+```
+
+### Step 3: Setup Drupal (DDEV Method - Recommended)
+```bash
+# Configure DDEV for the project
+ddev config --project-type=drupal11 --docroot=web
+
+# Start DDEV environment
+ddev start
+
+# Install Drupal site
+ddev drush site:install --db-url=mysql://db:db@db/db -y
+
+# Enable the custom module
+ddev drush en event_registration -y
+
+# Launch the site
+ddev launch
+```
+
+### Alternative: Manual Setup (Without DDEV)
+```bash
+# Configure database in web/sites/default/settings.php
+# Create settings.php from default.settings.php and add database credentials
+
+# Install Drupal via browser: http://your-local-domain/install.php
+# After installation, enable the module:
+vendor/bin/drush en event_registration -y
+```
+
+### Post-Installation
+The module will automatically create two database tables:
+- `event_configuration`: Stores event metadata and registration windows.
+- `event_registration`: Stores registrant data with foreign key to `event_configuration`.
 
 ---
 
