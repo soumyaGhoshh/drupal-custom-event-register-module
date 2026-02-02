@@ -1,50 +1,66 @@
 # Event Registration Drupal 10 Module
 
-## Overview
-This module provides a robust framework for managing event registrations. It allows administrators to configure multiple events with specific registration windows and categories, while providing a seamless, AJAX-powered registration experience for end-users.
+[![Drupal 10+](https://img.shields.io/badge/Drupal-10%2B-blue.svg)](https://www.drupal.org/)
+[![PHP 8.3+](https://img.shields.io/badge/PHP-8.3%2B-purple.svg)](https://www.php.net/)
+[![License: GPLv2](https://img.shields.io/badge/License-GPLv2-green.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
-## Key Features
-- **Sophisticated AJAX Cascading**: The public registration form features a deep cascading logic: **Category -> Event Date -> Event Name**, ensuring users only see relevant and open events.
-- **Dynamic Access Control**: Forms are automatically enabled/disabled based on the registration window (start/end dates) defined by the administrator.
-- **Advanced Admin Dashboard**: A specialized listing page with AJAX-driven filtering by date and event name, including a real-time participant counter and CSV export functionality.
-- **Security & Validation**: 
-    - Duplicate registration prevention (Email + Event Date).
-    - Regex-based input sanitization to prevent special character exploits.
-    - Full PSR-4 and Drupal 10.x compliance.
-- **100% Dependency Injection**: No static `\Drupal::service()` calls in business logic, ensuring testability and high-quality architecture.
+A professional, high-performance Drupal 10 module designed for seamless event management and registrant tracking. This module emphasizes a reactive UX, strict data integrity, and enterprise-grade code architecture.
 
-## Installation & Setup
-1. Place the `event_registration` folder in your Drupal site's `modules/custom/` directory.
-2. Enable the module using Drush:
-   ```bash
-   drush en event_registration
-   ```
-3. The custom database tables (`event_configuration` and `event_registration`) are automatically created upon installation.
+---
 
-## URLs & Access
-- **Event Configuration**: [/admin/config/services/event-registration](https://event-registration-task.ddev.site/admin/config/services/event-registration)
-  - Purpose: Add new events, set registration windows, and define categories.
-  ![Event Configuration Form](images/event_config_form_real.png)
+## 📌 Table of Contents
+1. [Key Features](#-key-features)
+2. [Installation & Setup](#-installation--setup)
+3. [Administrative Dashboard](#-administrative-dashboard)
+4. [Public Experience](#-public-experience)
+5. [Developer Documentation](#-developer-documentation)
+    - [Architecture](#architecture)
+    - [Database Access](#database-access)
+    - [Email Testing](#email-testing)
+6. [Standards](#-standards)
 
-- **Global Settings**: [/admin/config/services/event-registration/global](https://event-registration-task.ddev.site/admin/config/services/event-registration/global)
-  - Purpose: Configure admin notification email and enable/disable alerts.
-  ![Global Settings](images/global_settings_real.png)
+---
 
-- **Admin Dashboard**: [/admin/config/services/event-registration/registrations](https://event-registration-task.ddev.site/admin/config/services/event-registration/registrations)
-  - Purpose: Filter registrations, view participant counts, and export CSVs.
-  ![Admin Dashboard](images/admin_dashboard_real.png)
+## ✨ Key Features
 
-- **Public Registration Form**: [/event/register](https://event-registration-task.ddev.site/event/register)
-  - Purpose: User-facing form for event signup.
-  ![Registration Form](images/registration_form_real.png)
+*   **Reactive AJAX Flows**: Deep cascading logic (**Category → Date → Event**) ensures a frictionless registration process.
+*   **Time-Locked Windows**: Automatic locking of registration based on customizable start/end windows.
+*   **Live Analytics**: Real-time participant counting and multi-criteria filtering in the admin portal.
+*   **Security Focused**: 
+    *   Strict duplicate prevention (one registration per person per event date).
+    *   Robust input sanitization via regex to prevent XSS and SQL injection.
+*   **Decoupled Architecture**: 100% Dependency Injection; zero static service calls.
 
-## Database Access
-To view and manage the database (phpMyAdmin), run the following command:
-```bash
-ddev phpmyadmin
-```
-This will open the phpMyAdmin interface in your browser.
-Alternatively, visit: [https://event-registration-task.ddev.site:8037](https://event-registration-task.ddev.site:8037)
+---
+
+## ⚙️ Installation & Setup
+
+1.  Clone/Place the `event_registration` folder into `modules/custom/`.
+2.  Enable via Drush:
+    ```bash
+    drush en event_registration
+    ```
+3.  The module will automatically provision the required database schema.
+
+---
+
+## 🛠️ Administrative Dashboard
+
+### Configuration
+Manage your events and global notification settings.
+
+*   **Event Setup**: `/admin/config/services/event-registration`
+    > [!TIP]
+    > You can configure multiple events. Registration forms will only enable when the current time is within the defined window.
+    ![Event Config](images/event_config_form_real.png)
+
+*   **Global Alerts**: `/admin/config/services/event-registration/global`
+    ![Global Settings](images/global_settings_real.png)
+
+### Registrations & Export
+Monitor attendees and export data for external use.
+*   **Path**: `/admin/config/services/event-registration/registrations`
+    ![Admin Dashboard](images/admin_dashboard_real.png)
 
 ### Database Table Views
 **Event Configuration Table:**
@@ -53,32 +69,63 @@ Alternatively, visit: [https://event-registration-task.ddev.site:8037](https://e
 **Event Registration Table:**
 ![Event Registration Table](images/db_registration_table.png)
 
+#### Table: `event_configuration`
+*   `id`: Primary key.
+*   `event_registration_start/end`: Unix timestamps for the registration window.
+*   `event_date`: Stored string for localized display.
+*   `event_name / category`: Textual metadata.
 
-## Database Architecture
-The module utilizes two relational tables:
-1. **`event_configuration`**: Stores event metadata.
-   - `id`: Primary Key.
-   - `event_registration_start`: Timestamp for opening registration.
-   - `event_registration_end`: Timestamp for closing registration.
-   - `event_date`: Stored as a string for consistent display.
-   - `event_name` & `category`: Textual descriptors.
-2. **`event_registration`**: Stores registrant data.
-   - `event_id`: Foreign Key linking to `event_configuration`.
-   - `name`, `email`, `college`, `department`: User inputs.
-   - `created`: Submission timestamp.
+#### Table: `event_registration`
+*   `event_id`: Foreign key linked to `event_configuration`.
+*   `name / email / college / department`: Registrant personal data.
+*   `created`: Timestamp of submission.
 
-## Implementation Logic
-- **Email Logic**: Utilizes the Drupal Mail API via `hook_mail` and `MailManagerInterface`. Notifications are triggered upon successful submission, sending personalized details to both the registrant and the administrator (if enabled).
-- **Validation Logic**: A multi-layered validation approach. First, we check for existing database entries to prevent duplicates. Second, we verify email syntax. Third, we use regular expressions to enforce character restrictions on text fields.
-- **AJAX Logic**: Uses Drupal's `AjaxResponse` and `ReplaceCommand` to provide a reactive UI, updating filtered lists and counters without page refreshes.
+---
 
-## Development Standards
-- **PSR-4 Autoloading**
-- **Dependency Injection Pattern**
-- **Drupal Coding Standards (Coder/PHPCS)**
-- **Strict adherence to Drupal 10 API**
+## 🌐 Public Experience
 
-## Email Testing
-To verify email delivery during development (localhost/DDEV), you can check the captured emails in one of two ways:
-1. **DDEV Mailpit**: If you are running the site via DDEV, run `ddev launch -m` to open the Mailpit interface where all outgoing emails are captured.
-2. **Maillog Module**: If you have the `maillog` contrib module enabled for debugging, you can view sent emails at `/admin/reports/maillog`.
+Users interact with a reactive form located at:  
+👉 **`/event/register`**
+
+![Registration Form](images/registration_form_real.png)
+
+---
+
+## 💻 Developer Documentation
+
+### Architecture
+- **Form API**: Custom cascading AJAX callbacks for dynamic field updates.
+- **Mail API**: Integrated `hook_mail` for transactional user and admin notifications.
+    - *Logic*: Notifications are triggered upon successful database insertion. A personalized confirmation is sent to the registrant, and an optional alert is sent to the admin email configured in 'Global Settings'.
+- **Database**: Custom schema implementation via `hook_schema`.
+- **Validation Logic**: 
+    - *Duplicates*: Checks existing records (Email + Date) to prevent multiple registrations.
+    - *Sanitization*: Regex filters (`/[^a-zA-Z0-9\s.\-,]/`) ensure no malicious characters in text fields.
+    - *Integrity*: Server-side validation ensures a valid `event_id` is present before processing.
+
+### Database Access
+To inspect the underlying relational data in your local environment:
+```bash
+# Launch phpMyAdmin
+ddev phpmyadmin
+```
+**Relational View:**
+![DB Config](images/db_configuration_table.png)
+![DB Registration](images/db_registration_table.png)
+
+### Email Testing
+We use **Mailpit** to capture all outgoing registrations.
+```bash
+# Browse Captured Mail
+ddev mailpit
+```
+**Mailpit Inbox View:**
+![Mailpit Preview](images/mailpit_debug_real.png)
+
+---
+
+## 🏆 Standards
+*   **PSR-4 Autoloading**
+*   **Drupal 10.x/11.x Core Compatibility**
+*   **PSR-12 PHP Coding Standards**
+*   **Strict Dependency Injection Pattern**
