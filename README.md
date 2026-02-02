@@ -78,7 +78,12 @@ Users interact with a reactive form located at:
 ### Architecture
 - **Form API**: Custom cascading AJAX callbacks for dynamic field updates.
 - **Mail API**: Integrated `hook_mail` for transactional user and admin notifications.
+    - *Logic*: Notifications are triggered upon successful database insertion. A personalized confirmation is sent to the registrant, and an optional alert is sent to the admin email configured in 'Global Settings'.
 - **Database**: Custom schema implementation via `hook_schema`.
+- **Validation Logic**: 
+    - *Duplicates*: Checks existing records (Email + Date) to prevent multiple registrations.
+    - *Sanitization*: Regex filters (`/[^a-zA-Z0-9\s.\-,]/`) ensure no malicious characters in text fields.
+    - *Integrity*: Server-side validation ensures a valid `event_id` is present before processing.
 
 ### Database Access
 To inspect the underlying relational data in your local environment:
@@ -89,6 +94,17 @@ ddev phpmyadmin
 **Relational View:**
 ![DB Config](web/modules/custom/event_registration/images/db_configuration_table.png)
 ![DB Registration](web/modules/custom/event_registration/images/db_registration_table.png)
+
+#### Table: `event_configuration`
+*   `id`: Primary key.
+*   `event_registration_start/end`: Unix timestamps for the registration window.
+*   `event_date`: Stored string for localized display.
+*   `event_name / category`: Textual metadata.
+
+#### Table: `event_registration`
+*   `event_id`: Foreign key linked to `event_configuration`.
+*   `name / email / college / department`: Registrant personal data.
+*   `created`: Timestamp of submission.
 
 ### Email Testing
 We use **Mailpit** to capture all outgoing registrations.
